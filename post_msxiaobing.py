@@ -17,6 +17,7 @@ def main():
   calculate_apperance(path)
 
 def rating_apperance(path):
+  print "正在上传图片计算颜值..."
   image_uploaded = upload_image(path)
   rst = analyze_image(image_uploaded,"yanzhi")['content']['text']
   print rst

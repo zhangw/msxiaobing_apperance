@@ -4,7 +4,8 @@ run_rating_apperance.py
 
 Created by <jimokanghanchao@gmail.com> on Nov 30,2015
 """
-import post_msxiaobing
+
+from post_msxiaobing import rating_apperance
 import argparse
 
 def main():
@@ -13,7 +14,7 @@ def main():
   parser.add_argument("--path", type=str, help="输入本机的图片全路径，比如--path /Users/xxx/xxx.jpg")
   args = parser.parse_args()
   if args.path is not None:
-    rating_apperance.main(args.path)
+    rating_apperance(args.path)
   else:
     parser.print_help()
 
