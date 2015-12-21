@@ -39,16 +39,18 @@ def rating_apperance(path, local=True):
     return None
   
 
-def upload_image(path):
+def upload_image(path,buffer=None):
   url = "http://kan.msxiaobing.com/Api/Image/UploadBase64"
-  with open(path,"rb") as image_file:
-    image_encoded = base64.b64encode(image_file.read())
-    request = urllib2.Request(url)
-    request.add_header("Content-type", "application/x-www-form-urlencoded; charset=UTF-8")
-    request.add_data(image_encoded)
-    res = urllib2.urlopen(request)
-    if res.getcode() == 200:
-      return json.loads(res.readlines()[0])
+  if buffer == None:
+    with open(path,"rb") as image_file:
+      buffer = image_file.read()
+  image_encoded = base64.b64encode(buffer)
+  request = urllib2.Request(url)
+  request.add_header("Content-type", "application/x-www-form-urlencoded; charset=UTF-8")
+  request.add_data(image_encoded)
+  res = urllib2.urlopen(request)
+  if res.getcode() == 200:
+    return json.loads(res.readlines()[0])
 
 def analyze_image(imageinfo=None,type="yanzhi",url=None):
   """
@@ -60,7 +62,18 @@ def analyze_image(imageinfo=None,type="yanzhi",url=None):
   if imageinfo is not None:
     image_url = imageinfo['Host'] + imageinfo['Url']
   else:
-    image_url = url
+    #first download the image from the url
+    request_headers = {
+      "Accept-Language": "en-US,en;q=0.5",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:40.0) Gecko/20100101 Firefox/40.0",
+      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      "Connection": "keep-alive" 
+    }
+    request = urllib2.Request(url,headers=request_headers)
+    res = urllib2.urlopen(request)
+    imagedata = res.read()
+    imageinfo = upload_image(None,buffer=imagedata)
+    image_url = imageinfo['Host'] + imageinfo['Url']
   if image_url is not None:
     url = "http://kan.msxiaobing.com/Api/ImageAnalyze/Process?service=%s&tid=%s" % (type,uuid.uuid4().hex)
     tv = time.time()
